@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEDDESK — Apoyo en tiempo real para interpretación médica</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-alt: #f1f5f9;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-soft: #eff6ff;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius: 14px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --surface-alt: #162032;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --border: #334155;
+        --accent: #38bdf8;
+        --accent-hover: #0ea5e9;
+        --accent-soft: rgba(56, 189, 248, 0.12);
+        --shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    [data-lang="en"] .lang-es { display: none !important; }
+    [data-lang="es"] .lang-en { display: none !important; }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.02em;
+    }
+
+    .brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .lang-btn {
+      background: var(--surface-alt);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .lang-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .hero {
+      padding: 54px 0 44px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      margin: 0 0 14px;
+      font-size: clamp(1.9rem, 4.5vw, 2.75rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .hero .subtitle {
+      max-width: 650px;
+      margin: 0 auto 28px;
+      font-size: 1.08rem;
+      color: var(--muted);
+    }
+
+    .cta-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-download {
+      display: inline-block;
+      background: var(--accent);
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.08rem;
+      padding: 15px 30px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .btn-download { color: #0f172a; }
+    }
+
+    .btn-download:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .meta-note {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    section {
+      padding: 36px 0;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .privacy-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .privacy-box p {
+      margin: 0 0 12px;
+    }
+
+    .privacy-box p:last-child {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .trial-banner {
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .trial-item strong {
+      display: block;
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .steps, .reqs {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .steps li, .reqs li {
+      margin-bottom: 10px;
+    }
+
+    .notice {
+      margin-top: 12px;
+      padding: 14px 16px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+    }
+
+    summary {
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    details p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      margin-top: 24px;
+      padding: 26px 0 36px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    @media (max-width: 440px) {
+      .hero { padding: 38px 0 30px; }
+      .btn-download { width: 100%; text-align: center; padding: 14px 18px; }
+      .privacy-box, .card, .trial-banner { padding: 18px; }
+    }
+  </style>
+</head>
+<body data-lang="es">
+  <script>
+    // Única constante del enlace de descarga (cambiar aquí si cambia el release).
+    const DOWNLOAD_URL = "https://github.com/Villalobos90/meddesk/releases/latest/download/MEDDESK_Setup.exe";
+  </script>
+
+  <header>
+    <div class="container topbar">
+      <a class="brand" href="#top">
+        <img src="icon.png" alt="MEDDESK">
+        <span>MEDDESK</span>
+      </a>
+      <button type="button" class="lang-btn" id="langToggle" aria-label="Cambiar idioma">
+        <span class="lang-es">English</span>
+        <span class="lang-en">Español</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top" class="container">
+    <section class="hero">
+      <h1>
+        <span class="lang-es">Apoyo en tiempo real para interpretación médica</span>
+        <span class="lang-en">Real-time support for medical interpretation</span>
+      </h1>
+      <p class="subtitle">
+        <span class="lang-es">Escucha la llamada directamente desde tu computadora, muestra la transcripción bilingüe al instante y te ayuda con términos médicos y notas sin estorbar.</span>
+        <span class="lang-en">Listens to the call directly on your computer, displays live bilingual transcription, and assists with medical terms and session notes without getting in your way.</span>
+      </p>
+      <div class="cta-wrap">
+        <a class="btn-download" id="downloadLink" href="https://github.com/Villalobos90/meddesk/releases/latest/download/MEDDESK_Setup.exe">
+          <span class="lang-es">Descargar para Windows</span>
+          <span class="lang-en">Download for Windows</span>
+        </a>
+        <div class="meta-note">
+          <span class="lang-es">Versión 4.1 · 1,1 GB</span>
+          <span class="lang-en">Version 4.1 · 1.1 GB</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>
+        <span class="lang-es">Qué hace</span>
+        <span class="lang-en">What it does</span>
+      </h2>
+      <div class="grid">
+        <article class="card">
+          <h3>
+            <span class="lang-es">Transcripción en vivo en dos columnas</span>
+            <span class="lang-en">Live two-column transcription</span>
+          </h3>
+          <p>
+            <span class="lang-es">Separa inglés y español en tiempo real para seguir la conversación con claridad durante toda la llamada.</span>
+            <span class="lang-en">Separates English and Spanish in real time so you can follow every turn clearly throughout the call.</span>
+          </p>
+        </article>
+        <article class="card">
+          <h3>
+            <span class="lang-es">Traducción al instante</span>
+            <span class="lang-en">Instant translation</span>
+          </h3>
+          <p>
+            <span class="lang-es">Traduce bloques completos o términos puntuales entre inglés y español, funcionando también sin conexión.</span>
+            <span class="lang-en">Translates full segments or individual terms between English and Spanish, including offline support on your computer.</span>
+          </p>
+        </article>
+        <article class="card">
+          <h3>
+            <span class="lang-es">Búsqueda de términos médicos</span>
+            <span class="lang-en">Medical term lookup</span>
+          </h3>
+          <p>
+            <span class="lang-es">Consulta rápida de medicamentos, abreviaturas y vocabulario clínico sin perder el hilo de la sesión.</span>
+            <span class="lang-en">Quick lookup for medications, abbreviations, and clinical vocabulary without losing track of the session.</span>
+          </p>
+        </article>
+        <article class="card">
+          <h3>
+            <span class="lang-es">Notas de la llamada</span>
+            <span class="lang-en">Call notes</span>
+          </h3>
+          <p>
+            <span class="lang-es">Panel de apuntes integrado para anotar nombres, cifras y datos clave, listo para limpiar al colgar.</span>
+            <span class="lang-en">Built-in scratchpad to jot down names, numbers, and key details, ready to clear when the call ends.</span>
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>
+        <span class="lang-es">Privacidad</span>
+        <span class="lang-en">Privacy</span>
+      </h2>
+      <div class="privacy-box">
+        <div class="lang-es">
+          <p><strong>La transcripción ocurre en tu computadora.</strong> El audio de la llamada se convierte en texto dentro de tu equipo; el audio no se envía a internet ni se guarda.</p>
+          <p><strong>Tú decides sobre la traducción.</strong> La traducción puede funcionar completamente en tu equipo. Algunas funciones opcionales (traducción con IA, búsqueda de medicamentos) consultan servicios en línea con el texto que eliges.</p>
+          <p><strong>Sin grabaciones.</strong> MEDDESK no guarda el audio de tus llamadas. Para iniciar sesión solo usamos tu correo y un identificador de tu equipo.</p>
+          <p>MEDDESK es una herramienta de apoyo para intérpretes profesionales. El cumplimiento de HIPAA depende también de las políticas de tu agencia y de cómo uses cada función.</p>
+        </div>
+        <div class="lang-en">
+          <p><strong>Transcription happens on your computer.</strong> Call audio is converted into text locally on your device; audio is never sent to the internet or saved.</p>
+          <p><strong>You stay in control of translation.</strong> Translation can run completely on your computer. Optional features (AI-assisted translation, medication lookup) query online services only with the text you choose.</p>
+          <p><strong>No recordings.</strong> MEDDESK does not record or store your call audio. To sign in, we only use your email address and a device identifier.</p>
+          <p>MEDDESK is a support tool for professional interpreters. HIPAA compliance also depends on your agency's policies and how you choose to use each feature.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>
+        <span class="lang-es">Prueba gratuita</span>
+        <span class="lang-en">Free trial</span>
+      </h2>
+      <div class="trial-banner">
+        <div class="trial-item">
+          <span class="lang-es">
+            <strong>3 días gratis al registrarte</strong>
+            Descarga la aplicación, pulsa «Crear cuenta», confirma el código que llega a tu correo y comienza a probarla al instante.
+          </span>
+          <span class="lang-en">
+            <strong>3 days free upon sign-up</strong>
+            Download the app, click "Create account", enter the verification code sent to your email, and start right away.
+          </span>
+        </div>
+        <div class="trial-item">
+          <span class="lang-es">
+            <strong>7 días con código de vendedor</strong>
+            Si un vendedor autorizado te compartió su código, escríbelo al crear tu cuenta para recibir 7 días completos de prueba.
+          </span>
+          <span class="lang-en">
+            <strong>7 days with a referral code</strong>
+            If an authorized representative gave you a code, enter it during sign-up to unlock a full 7-day trial.
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>
+        <span class="lang-es">Requisitos</span>
+        <span class="lang-en">System requirements</span>
+      </h2>
+      <div class="card">
+        <ul class="reqs">
+          <li>
+            <span class="lang-es">Windows 10 u 11 de 64 bits.</span>
+            <span class="lang-en">Windows 10 or 11 (64-bit).</span>
+          </li>
+          <li>
+            <span class="lang-es">Google Chrome instalado.</span>
+            <span class="lang-en">Google Chrome installed.</span>
+          </li>
+          <li>
+            <span class="lang-es">Unos 3 GB de espacio libre en disco.</span>
+            <span class="lang-en">About 3 GB of free disk space.</span>
+          </li>
+          <li>
+            <span class="lang-es">Conexión a internet para iniciar sesión y validar tu acceso.</span>
+            <span class="lang-en">Internet connection to sign in and verify access.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>
+        <span class="lang-es">Instalación paso a paso</span>
+        <span class="lang-en">Step-by-step installation</span>
+      </h2>
+      <div class="card">
+        <ol class="steps">
+          <li>
+            <span class="lang-es">Descarga <code>MEDDESK_Setup.exe</code> desde el botón superior y ábrelo.</span>
+            <span class="lang-en">Download <code>MEDDESK_Setup.exe</code> using the button above and open it.</span>
+          </li>
+          <li>
+            <span class="lang-es">Si Windows muestra «Windows protegió su PC», pulsa <strong>Más información</strong> y luego <strong>Ejecutar de todas formas</strong>. Aparece porque el instalador es nuevo y aún no tiene firma digital.</span>
+            <span class="lang-en">If Windows shows "Windows protected your PC", click <strong>More info</strong> and then <strong>Run anyway</strong>. It appears because the installer is new and not yet digitally signed.</span>
+          </li>
+          <li>
+            <span class="lang-es">Sigue el asistente de instalación (no requiere cables virtuales ni configuraciones complicadas).</span>
+            <span class="lang-en">Follow the setup wizard (no virtual audio cables or complicated configuration required).</span>
+          </li>
+          <li>
+            <span class="lang-es">Abre MEDDESK, pulsa <strong>Crear cuenta</strong>, ingresa tu correo, escribe el código de 6 dígitos y crea tu contraseña.</span>
+            <span class="lang-en">Open MEDDESK, click <strong>Create account</strong>, enter your email, type the 6-digit code, and choose your password.</span>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <h2>
+        <span class="lang-es">Preguntas frecuentes</span>
+        <span class="lang-en">Frequently asked questions</span>
+      </h2>
+      <details>
+        <summary>
+          <span class="lang-es">¿Necesito instalar algún programa adicional de audio?</span>
+          <span class="lang-en">Do I need to install extra audio software?</span>
+        </summary>
+        <p>
+          <span class="lang-es">No. MEDDESK captura el sonido que escuchas en tu computadora de forma directa.</span>
+          <span class="lang-en">No. MEDDESK captures your computer's playback sound directly.</span>
+        </p>
+      </details>
+      <details>
+        <summary>
+          <span class="lang-es">¿Puedo usar mi cuenta en más de una computadora?</span>
+          <span class="lang-en">Can I use my account on more than one computer?</span>
+        </summary>
+        <p>
+          <span class="lang-es">Cada cuenta queda vinculada a un solo equipo. Si cambias de computadora, contáctanos para liberar el vínculo.</span>
+          <span class="lang-en">Each account is tied to one computer. If you switch devices, contact us to reset your device link.</span>
+        </p>
+      </details>
+      <details>
+        <summary>
+          <span class="lang-es">¿Qué pasa cuando termina la prueba gratuita?</span>
+          <span class="lang-en">What happens when the free trial ends?</span>
+        </summary>
+        <p>
+          <span class="lang-es">Si estás en medio de una llamada, MEDDESK te deja terminarla normalmente. Después verás la pantalla de renovación con tu número de referencia y las opciones de pago.</span>
+          <span class="lang-en">If you are in the middle of a call, MEDDESK lets you finish it normally. Afterward, the renewal screen shows your reference number and payment options.</span>
+        </p>
+      </details>
+      <details>
+        <summary>
+          <span class="lang-es">¿Qué hago si no llega el código a mi correo?</span>
+          <span class="lang-en">What if I don't receive the email verification code?</span>
+        </summary>
+        <p>
+          <span class="lang-es">Revisa tu carpeta de correo no deseado o espera 60 segundos para pulsar «Reenviar código».</span>
+          <span class="lang-en">Check your spam or junk folder, or wait 60 seconds and click "Resend code".</span>
+        </p>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <!-- Contacto oculto hasta tener uno real: reemplaza CONTACTO_AQUI y quita este comentario.
+      <div>
+        <span class="lang-es">Contacto: </span>
+        <span class="lang-en">Contact: </span>
+        <span>CONTACTO_AQUI</span>
+      </div>
+      -->
+      <div>© 2026 MEDDESK</div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var dl = document.getElementById("downloadLink");
+      if (dl && typeof DOWNLOAD_URL === "string" && DOWNLOAD_URL) {
+        dl.href = DOWNLOAD_URL;
+      }
+      var btn = document.getElementById("langToggle");
+      if (btn) {
+        btn.addEventListener("click", function () {
+          var current = document.body.getAttribute("data-lang") === "en" ? "en" : "es";
+          var next = current === "es" ? "en" : "es";
+          document.body.setAttribute("data-lang", next);
+          document.documentElement.setAttribute("lang", next);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
